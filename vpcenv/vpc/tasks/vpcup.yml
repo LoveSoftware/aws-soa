@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: launch ansible cloudformation example
+      cloudformation:
+        stack_name: "corevpc"
+        state: "present"
+        region: "eu-west-1"
+        template: "../files/vpc.json"
+        tags:
+          Stack: "corevpc"

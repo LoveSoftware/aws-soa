@@ -1,0 +1,26 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "associate_public_ip_address": true, 
+    "region": "eu-west-1",
+    "subnet_id": "subnet-3283516b",
+    "vpc_id": "vpc-df29f3ba",
+    "source_ami": "ami-cba130bc",
+    "instance_type": "t2.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "packer-example {{timestamp}}"
+  }],
+  "provisioners": [
+    {
+      "type": "ansible-local",
+      "playbook_file": "/vagrant/instancebuild/webserver.yml",
+      "playbook_dir": "/vagrant/instancebuild"
+    } 
+  ]
+}

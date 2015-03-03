@@ -1,0 +1,159 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Service Template",
+
+  "Parameters" : {
+
+    "ServiceName" : {
+      "Description" : "The service name to tag resources with",
+      "Type": "String"
+    },
+
+    "VPCName" : {
+      "Description" : "The identifier of the VPC to launch the service into",
+      "Type": "String"
+    },
+
+	"PrivateCIDRA": {
+      "Description": "The CIDR of ServicePrivateSubnetA",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+
+	"PrivateCIDRB": {
+      "Description": "The CIDR of ServicePrivateSubnetB",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },    
+
+	"PrivateCIDRC": {
+      "Description": "The CIDR of ServicePrivateSubnetC",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+
+   	"VPCPublicSubnetA": {
+      "Description": "The ID of VPC public subnet A",
+      "Type": "String"     
+    },
+
+    "VPCPublicSubnetB": {
+      "Description": "The ID of VPC public subnet B",
+      "Type": "String"     
+    },
+
+    "VPCPublicSubnetC": {
+      "Description": "The ID of VPC public subnet C",
+      "Type": "String"     
+    },
+
+    "VPCPrivateSubnetA": {
+      "Description": "The ID of VPC private subnet A",
+      "Type": "String"     
+    },
+
+    "VPCPrivateSubnetB": {
+      "Description": "The ID of VPC private subnet B",
+      "Type": "String"     
+    },
+
+    "VPCPrivateSubnetC": {
+      "Description": "The ID of VPC private subnet C",
+      "Type": "String"     
+    }
+
+  },
+
+  "Mappings" : {
+  },
+
+  "Resources" : {
+
+	"ServicePrivateSubnetA" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : { "Ref" : "VPCName" },
+            "CidrBlock" : { "Ref" : "PrivateCIDRA" },
+            "AvailabilityZone" : "eu-west-1a",
+            "Tags" : [ { "Key" : "Service", "Value" : { "Ref" : "ServiceName" } } ]
+         }
+    },
+
+    "ServicePrivateSubnetB" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : { "Ref" : "VPCName" },
+            "CidrBlock" : { "Ref" : "PrivateCIDRB" },
+            "AvailabilityZone" : "eu-west-1b",
+            "Tags" : [ { "Key" : "Service", "Value" : { "Ref" : "ServiceName" } } ]
+         }
+    },
+
+    "ServicePrivateSubnetC" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : { "Ref" : "VPCName" },
+            "CidrBlock" : { "Ref" : "PrivateCIDRC" },
+            "AvailabilityZone" : "eu-west-1c",
+            "Tags" : [ { "Key" : "Service", "Value" : { "Ref" : "ServiceName" } } ]
+         }
+    },
+
+	"PublicElasticLoadBalancer" : {
+	  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+	  "Properties" : {
+	    "Subnets": [
+	    	{ "Ref" : "VPCPublicSubnetA" },
+	    	{ "Ref" : "VPCPublicSubnetB" },
+	    	{ "Ref" : "VPCPublicSubnetC" }
+	    ],
+	    "Listeners" : [ 
+		    {
+		      "LoadBalancerPort" : "80",
+		      "InstancePort" : "80",
+		      "Protocol" : "HTTP"
+		    }
+	    ],
+	    "HealthCheck" : {
+	      "Target" : "HTTP:80/",
+	      "HealthyThreshold" : "3",
+	      "UnhealthyThreshold" : "5",
+	      "Interval" : "30",
+	      "Timeout" : "5"
+	    },
+	    "Tags" : [ { "Key" : "Service", "Value" : { "Ref" : "ServiceName" } } ]
+	  }
+	},
+
+	"PrivateElasticLoadBalancer" : {
+	  "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+	  "Properties" : {
+	    
+	    "Subnets": [
+	    	{ "Ref" : "VPCPrivateSubnetA" },
+	    	{ "Ref" : "VPCPrivateSubnetB" },
+	    	{ "Ref" : "VPCPrivateSubnetC" }
+	    ],
+	    "Listeners" : [ 
+		    {
+		      "LoadBalancerPort" : "80",
+		      "InstancePort" : "80",
+		      "Protocol" : "HTTP"
+		    }
+	    ],
+	    "HealthCheck" : {
+	      "Target" : "HTTP:80/",
+	      "HealthyThreshold" : "3",
+	      "UnhealthyThreshold" : "5",
+	      "Interval" : "30",
+	      "Timeout" : "5"
+	    },
+	    "Tags" : [ { "Key" : "Service", "Value" : { "Ref" : "ServiceName" } } ]
+	  }
+	}
+  }
+}

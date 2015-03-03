@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: launch ansible cloudformation example
+      cloudformation:
+        stack_name: "serviceA"
+        state: "present"
+        region: "eu-west-1"
+        template: "service.json"
+        template_parameters:
+          ServiceName: "Service A"
+          VPCName: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCId') }}"
+          VPCPublicSubnetA: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCPublicSubnetA') }}"
+          VPCPublicSubnetB: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCPublicSubnetB') }}"
+          VPCPublicSubnetC: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCPublicSubnetC') }}"
+          VPCPrivateSubnetA: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCPrivateSubnetA') }}"
+          VPCPrivateSubnetB: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCPrivateSubnetB') }}"
+          VPCPrivateSubnetC: "{{ lookup('cloudformation', 'eu-west-1/corevpc/output/VPCPrivateSubnetC') }}"
+          PrivateCIDRA: "10.0.7.0/24"
+          PrivateCIDRB: "10.0.8.0/24"
+          PrivateCIDRC: "10.0.9.0/24"
+        tags:
+          Stack: "ServiceA"
